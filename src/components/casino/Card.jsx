@@ -14,11 +14,12 @@ import { useMemo } from "react";
  */
 export default function Card({
     suit,
-    rank,
+    value,
     width = 100,
     height = 150,
     returned = false,
     sx = {},
+    fakeCard = false,
 }) {
     const getColorForSuit = (suitType) =>
         suitType === "hearts" || suitType === "diamonds" ? "red" : "black";
@@ -41,8 +42,10 @@ export default function Card({
     return (
         <Box sx={{
             perspective: "1000px",
+            pointerEvents: "none",
             ...cardSize,
             ...sx,
+            opacity: fakeCard ? 0 : 1,
         }}>
             <Box
                 className={`card-inner ${returned ? "" : "flipped"}`}
@@ -100,7 +103,7 @@ export default function Card({
                         fontWeight: "bold",
                         color: getColorForSuit(suit),
                     }}>
-                        {rank || "?"}
+                        {value || "?"}
                     </Box>
                     <Box sx={{
                         position: "absolute",
@@ -120,9 +123,10 @@ export default function Card({
 
 Card.propTypes = {
     suit: PropTypes.string,
-    rank: PropTypes.string,
+    value: PropTypes.string,
     width: PropTypes.number,
     height: PropTypes.number,
     returned: PropTypes.bool,
     sx: PropTypes.object,
+    fakeCard: PropTypes.bool,
 };

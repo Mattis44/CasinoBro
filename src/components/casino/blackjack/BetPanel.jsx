@@ -11,7 +11,10 @@ export default function BetPanel({
     onSplit,
     onDouble,
     onBetAmountChange,
+    playerCards,
+    dealerCards,
 }) {
+    const gameStarted = playerCards.length > 0 && dealerCards.length > 0;
     return (
         <Box sx={{
             width: 350,
@@ -30,16 +33,37 @@ export default function BetPanel({
 
                 <Grid container spacing={1} sx={{ padding: 2 }}>
                     <Grid item xs={6}>
-                        <ButtonBet value="Hit" onClick={() => { }} icon={{ name: "fluent:slide-add-28-filled", color: "#B7B1F2" }} />
+                        <ButtonBet
+                            value="Hit"
+                            onClick={() => {
+                                if (onHit) {
+                                    onHit();
+                                }
+                            }}
+                            icon={{ name: "fluent:slide-add-28-filled", color: "#B7B1F2" }}
+                            disabled={!gameStarted}
+                        />
                     </Grid>
                     <Grid item xs={6}>
-                        <ButtonBet value="Stand" onClick={() => { }} icon={{ name: "mingcute:hand-fill", color: "#FBF3B9" }} />
+                        <ButtonBet
+                            value="Stand"
+                            onClick={() => { }}
+                            icon={{ name: "mingcute:hand-fill", color: "#FBF3B9" }}
+                        />
                     </Grid>
                     <Grid item xs={6}>
-                        <ButtonBet value="Split" onClick={() => { }} icon={{ name: "fluent:split-vertical-12-filled", color: "#F2B7B7" }} />
+                        <ButtonBet
+                            value="Split"
+                            onClick={() => { }}
+                            icon={{ name: "fluent:split-vertical-12-filled", color: "#F2B7B7" }}
+                        />
                     </Grid>
                     <Grid item xs={6}>
-                        <ButtonBet value="Double" onClick={() => { }} icon={{ name: "healthicons:coins", color: "#B7F2B7" }} />
+                        <ButtonBet
+                            value="Double"
+                            onClick={() => { }}
+                            icon={{ name: "healthicons:coins", color: "#B7F2B7" }}
+                        />
                     </Grid>
                     <Button
                         variant="contained"
@@ -69,7 +93,7 @@ export default function BetPanel({
     )
 }
 
-const ButtonBet = ({ icon, value, onClick }) => (
+const ButtonBet = ({ icon, value, onClick, disabled }) => (
     <Button
         variant="contained"
         onClick={onClick}
@@ -84,6 +108,7 @@ const ButtonBet = ({ icon, value, onClick }) => (
             display: 'flex',
             gap: 1,
         }}
+        disabled={disabled}
     >
         <Typography>
             {value}
@@ -175,12 +200,6 @@ const BettingInput = ({
     );
 }
 
-ButtonBet.propTypes = {
-    icon: PropTypes.object.isRequired,
-    value: PropTypes.number.isRequired,
-    onClick: PropTypes.func.isRequired,
-};
-
 BetPanel.propTypes = {
     bet: PropTypes.number.isRequired,
     onBet: PropTypes.func,
@@ -189,6 +208,23 @@ BetPanel.propTypes = {
     onSplit: PropTypes.func,
     onDouble: PropTypes.func,
     onBetAmountChange: PropTypes.func,
+    playerCards: PropTypes.arrayOf(PropTypes.shape({
+        suit: PropTypes.string.isRequired,
+        value: PropTypes.string.isRequired,
+        hidden: PropTypes.bool,
+    })).isRequired,
+    dealerCards: PropTypes.arrayOf(PropTypes.shape({
+        suit: PropTypes.string.isRequired,
+        value: PropTypes.string.isRequired,
+        hidden: PropTypes.bool,
+    })).isRequired,
+};
+
+ButtonBet.propTypes = {
+    icon: PropTypes.object.isRequired,
+    value: PropTypes.number.isRequired,
+    onClick: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
 };
 
 BettingInput.propTypes = {

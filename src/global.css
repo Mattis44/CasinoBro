@@ -33,15 +33,15 @@
   }
   @keyframes fly-to-player-1 {
     0% { top: 20px; left: 20px; }
-    100% { top: 70%; left: 52%; }
+    100% { top: 70%; left: 55%; }
   }
   
   @keyframes fly-to-dealer-0 {
     0% { top: 20px; left: 20px; }
-    100% { top: 10%; left: 45%; }
+    100% { top: 15%; left: 45%; }
   }
   @keyframes fly-to-dealer-1 {
     0% { top: 20px; left: 20px; }
-    100% { top: 10%; left: 52%; }
+    100% { top: 15%; left: 55%; }
   }
   

@@ -40,7 +40,7 @@ class Api {
     if (response.config.headers.Authorization.split(' ')[1] !== accessToken) {
       localStorage.setItem('accessToken', response.config.headers.Authorization.split(' ')[1]);
     }
-    return response.data;
+    return { ...response.data, status: response.status };
   }
 
   static async put(url, data, config) {
