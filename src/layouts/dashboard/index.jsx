@@ -57,7 +57,6 @@ export default function DashboardLayout({ children }) {
           }}
         >
           {lgUp ? renderNavMini : renderNavVertical}
-
           <Main>{children}</Main>
         </Box>
       </>

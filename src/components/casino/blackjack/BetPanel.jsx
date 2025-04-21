@@ -3,7 +3,15 @@ import { Box, Button, Grid, InputBase, lighten, Paper, Typography } from "@mui/m
 import PropTypes from "prop-types";
 import { useState } from "react";
 
-export default function BetPanel() {
+export default function BetPanel({
+    bet,
+    onBet,
+    onHit,
+    onStand,
+    onSplit,
+    onDouble,
+    onBetAmountChange,
+}) {
     return (
         <Box sx={{
             width: 350,
@@ -11,7 +19,15 @@ export default function BetPanel() {
             backgroundColor: (theme) => theme.palette.background.paper,
         }}>
             <Box>
-                <BettingInput />
+                <BettingInput
+                    onChange={(value) => {
+                        if (onBetAmountChange) {
+                            onBetAmountChange(value);
+                        }
+                    }}
+                    bet={bet}
+                />
+
                 <Grid container spacing={1} sx={{ padding: 2 }}>
                     <Grid item xs={6}>
                         <ButtonBet value="Hit" onClick={() => { }} icon={{ name: "fluent:slide-add-28-filled", color: "#B7B1F2" }} />
@@ -39,7 +55,11 @@ export default function BetPanel() {
                             marginTop: 2,
                             ml: 1
                         }}
-                        onClick={() => { }}
+                        onClick={() => {
+                            if (onBet) {
+                                onBet();
+                            }
+                        }}
                     >
                         Bet
                     </Button>
@@ -72,8 +92,12 @@ const ButtonBet = ({ icon, value, onClick }) => (
     </Button>
 )
 
-const BettingInput = () => {
-    const [value, setValue] = useState(1);
+const BettingInput = ({
+    bet = 1,
+    onChange
+}) => {
+    const [value, setValue] = useState(bet);
+
     return (
         <Box sx={{ mt: 2 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 2 }}>
@@ -91,7 +115,17 @@ const BettingInput = () => {
                 <InputBase
                     sx={{ ml: 1, flex: 1 }}
                     value={value}
-                    onChange={(e) => setValue(e.target.value)}
+                    onChange={(e) => {
+                        const newValue = parseInt(e.target.value, 10);
+                        if (!Number.isNaN(newValue)) {
+                            setValue(newValue);
+                            if (onChange) {
+                                onChange(newValue);
+                            }
+                        } else {
+                            setValue(0);
+                        }
+                    }}
                     endAdornment={<Icon icon="ph:coins" width="1.2rem" height="1.2rem" style={{ marginRight: 8 }} />}
                 />
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -106,7 +140,13 @@ const BettingInput = () => {
                             height: '2rem',
                             fontSize: '0.7em',
                         }}
-                        onClick={() => { setValue(value * 2); }}>
+                        onClick={() => {
+                            setValue(value / 2);
+                            if (onChange) {
+                                onChange(value / 2);
+                            }
+                        }}
+                    >
                         1/2
                     </Button>
                     <Button
@@ -120,7 +160,13 @@ const BettingInput = () => {
                             height: '2rem',
                             fontSize: '0.7em',
                         }}
-                        onClick={() => { setValue(value * 2); }}>
+                        onClick={() => {
+                            setValue(value * 2);
+                            if (onChange) {
+                                onChange(value * 2);
+                            }
+                        }}
+                    >
                         2X
                     </Button>
                 </Box>
@@ -133,4 +179,19 @@ ButtonBet.propTypes = {
     icon: PropTypes.object.isRequired,
     value: PropTypes.number.isRequired,
     onClick: PropTypes.func.isRequired,
+};
+
+BetPanel.propTypes = {
+    bet: PropTypes.number.isRequired,
+    onBet: PropTypes.func,
+    onHit: PropTypes.func,
+    onStand: PropTypes.func,
+    onSplit: PropTypes.func,
+    onDouble: PropTypes.func,
+    onBetAmountChange: PropTypes.func,
+};
+
+BettingInput.propTypes = {
+    bet: PropTypes.number,
+    onChange: PropTypes.func,
 };

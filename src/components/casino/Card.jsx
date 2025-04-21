@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, darken } from "@mui/material";
 import PropTypes from "prop-types";
 import { useMemo } from "react";
 
@@ -9,6 +9,7 @@ import { useMemo } from "react";
  * @param {number} width
  * @param {number} height
  * @param {boolean} returned - true = dos, false = face
+ * @param {object} sx - styles to be applied to the card
  * @returns {JSX.Element}
  */
 export default function Card({
@@ -17,6 +18,7 @@ export default function Card({
     width = 100,
     height = 150,
     returned = false,
+    sx = {},
 }) {
     const getColorForSuit = (suitType) =>
         suitType === "hearts" || suitType === "diamonds" ? "red" : "black";
@@ -40,6 +42,7 @@ export default function Card({
         <Box sx={{
             perspective: "1000px",
             ...cardSize,
+            ...sx,
         }}>
             <Box
                 className={`card-inner ${returned ? "" : "flipped"}`}
@@ -64,8 +67,8 @@ export default function Card({
                             45deg,
                             rgb(0, 0, 0),
                             rgb(0, 0, 0) 10px,
-                            ${theme.palette.primary.main} 10px,
-                            ${theme.palette.primary.main} 20px
+                            ${darken(theme.palette.primary.main, 0.4)} 10px,
+                            ${darken(theme.palette.primary.main, 0.4)} 20px
                         )`,
                     }}
                 />
@@ -121,4 +124,5 @@ Card.propTypes = {
     width: PropTypes.number,
     height: PropTypes.number,
     returned: PropTypes.bool,
+    sx: PropTypes.object,
 };

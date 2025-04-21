@@ -46,6 +46,7 @@ export default function Main({ children, sx, ...other }) {
   return (
     <Container
       component="main"
+      maxWidth="xl"
       sx={{
         flexGrow: 1,
         minHeight: 1,
