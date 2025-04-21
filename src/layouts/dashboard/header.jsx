@@ -16,10 +16,7 @@ import SvgColor from 'src/components/svg-color';
 import { useSettingsContext } from 'src/components/settings';
 
 import { Icon } from '@iconify/react';
-import { Autocomplete, Box, InputAdornment, TextField, Tooltip } from '@mui/material';
-import { useState } from 'react';
-import Api from 'src/utils/api';
-import { useNavigate } from 'react-router';
+import { Box } from '@mui/material';
 import { NAV, HEADER } from '../config-layout';
 import AccountPopover from '../common/account-popover';
 
@@ -28,26 +25,11 @@ import AccountPopover from '../common/account-popover';
 export default function Header({ onOpenNav }) {
   const theme = useTheme();
   const settings = useSettingsContext();
-  const [usersSearch, setUsersSearch] = useState([]);
   const isNavHorizontal = settings.themeLayout === 'horizontal';
   const isNavMini = settings.themeLayout === 'mini';
   const lgUp = useResponsive('up', 'lg');
   const offset = useOffSetTop(HEADER.H_DESKTOP);
   const offsetTop = offset && !isNavHorizontal;
-  const navigate = useNavigate();
-  const [inputValue, setInputValue] = useState('');
-
-  const handleSearch = (value) => {
-    if (value === '') return;
-    Api.get(`/user/search?search=${value}&limit=5`).then((response) => {
-      setUsersSearch(response.map((user) => ({
-        id: user.id_user,
-        label: user.str_username,
-        value: user.str_username,
-      })));
-    });
-  };
-
 
   const renderContent = (
     <>
@@ -66,83 +48,22 @@ export default function Header({ onOpenNav }) {
         justifyContent="flex-end"
         spacing={{ xs: 0.5, sm: 1 }}
       >
-        <Autocomplete
-          freeSolo
-          options={usersSearch}
-          filterOptions={(x) => x}
-          inputValue={inputValue}
-          getOptionLabel={(option) => option.label || ''}
-          onChange={(e, value) => {
-            if (value) {
-              navigate(`/app/profile/${value.id}`);
-            }
-            setInputValue('');
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Search an user"
-              variant="outlined"
-              size="small"
-              color='primary'
-              onChange={(e) => {
-                handleSearch(e.target.value)
-                setInputValue(e.target.value);
-              }}
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Icon icon="material-symbols:search" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                width: '300px',
-              }}
-            />
-          )}
-        />
-        {/* <Typography sx={{
+        <Box sx={{
           display: 'flex',
           flexDirection: 'row',
-          gap: '5px',
+          justifyContent: 'space-between',
           alignItems: 'center',
           padding: '5px 10px',
           borderRadius: '10px',
-          border: '2px solid transparent',
-          backgroundImage: `linear-gradient(
-        90deg,
-        rgba(255, 154, 0, 1) 10%,
-        rgba(63, 218, 216, 1) 40%,
-        rgba(186, 12, 248, 1) 80%,
-        rgba(255, 0, 0, 1) 100%
-    )`,
-          backgroundOrigin: 'border-box',
-          backgroundClip: 'padding-box, border-box',
-          backgroundColor: theme.palette.background.paper,
+          border: '1px solid',
+          borderColor: 'primary.main',
+          gap: '5px',
         }}>
-          <Icon icon="ph:star-four-fill" />
-          Upgrade to Pro
-        </Typography> */}
-        <Tooltip title="SOON ^^" arrow>
-          <Box sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '5px 10px',
-            borderRadius: '10px',
-            border: '1px solid',
-            borderColor: 'primary.main',
-            gap: '5px',
-          }}>
-            <div>
-              0
-            </div>
-            <Icon icon="ph:coins" />
-          </Box>
-        </Tooltip>
+          <div>
+            0
+          </div>
+          <Icon icon="ph:coins" />
+        </Box>
         <AccountPopover />
       </Stack>
     </>

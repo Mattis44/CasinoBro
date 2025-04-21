@@ -49,39 +49,10 @@ export function useNavData() {
       // OVERVIEW
       // ----------------------------------------------------------------------
       {
-        subheader: 'InvestBox',
+        subheader: 'PLAY',
         items: [
-          { title: 'Dashboard', path: paths.dashboard.root, icon: ICONS.dashboard },
-          {
-            title: 'Wallet',
-            path: paths.dashboard.general.wallet,
-            icon: ICONS.banking,
-          },
-          {
-            title: 'Forum',
-            path: paths.dashboard.general.forum,
-            icon: ICONS.blog,
-          },
-          {
-            title: 'Profile',
-            path: paths.dashboard.general.profile,
-            icon: ICONS.user,
-          }
-          // {
-          //   title: 'Referral',
-          //   path: paths.dashboard.general.referral,
-          //   icon: ICONS.label,
-          // },
-          // {
-          //   title: 'Support',
-          //   path: paths.dashboard.general.support,
-          //   icon: ICONS.chat,
-          // },
-          // {
-          //   title: 'Settings',
-          //   path: paths.dashboard.general.settings,
-          //   icon: ICONS.lock,
-          // },
+          { title: 'Games', path: paths.dashboard.root, icon: ICONS.banking },
+          { title: 'Blackjack', path: paths.dashboard.general.blackjack, icon: ICONS.product },
         ],
       },
 

@@ -18,23 +18,14 @@ import { useAuthContext } from 'src/auth/hooks';
 import { varHover } from 'src/components/animate';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { useNavigate } from 'react-router';
-import ProfileAvatar from 'src/pages/profile/components/Avatar';
 
 // ----------------------------------------------------------------------
 
 const OPTIONS = [
   {
-    label: 'Dashboard',
-    linkTo: '/app',
+    label: 'Home',
+    linkTo: '/play',
   },
-  {
-    label: 'Profile',
-    linkTo: '/app/profile',
-  },
-  // {
-  //   label: 'Settings',
-  //   linkTo: '/#2',
-  // },
 ];
 
 // ----------------------------------------------------------------------
@@ -107,7 +98,7 @@ export default function AccountPopover() {
           }),
         }}
       >
-        <ProfileAvatar user={user} editable={false} size="small" />
+        {/* <ProfileAvatar user={user} editable={false} size="small" /> */}
       </IconButton>
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 200, p: 0 }}>
