@@ -5,6 +5,7 @@ import BetPanel from "src/components/casino/blackjack/BetPanel";
 import BlackjackGameInit from "src/components/casino/blackjack/GameInit";
 import Ribbon from "src/components/casino/blackjack/Ribbon";
 import Card from "src/components/casino/Card";
+import useSound from "src/hooks/useSound";
 import Api from "src/utils/api";
 
 const config = {
@@ -24,12 +25,18 @@ export default function Blackjack() {
     const [gameStarted, setGameStarted] = useState(false);
     const [dealingCard, setDealingCard] = useState(null); // { to: "player" | "dealer", index: number, card: { suit: "hearts" | "diamonds" | "clubs" | "spades", value: string } }
     const [isCardAnimating, setIsCardAnimating] = useState(false);
+    const [gameState, setGameState] = useState("waiting"); // "in_progress" | "win" | "lose" | "waiting"
+
+    const cardSound = useSound(`/fx/card1.wav`, 0.8);
+    const winSound = useSound(`/fx/win.mp3`, 0.8);
+
 
     const dealCard = (to, card, index) => {
         setDealingCard({ to, card, index });
 
         setIsCardAnimating(true);
 
+        cardSound();
         setTimeout(() => {
             if (to === "player") {
                 setPlayerCards((prev) => [...prev, card]);
@@ -40,6 +47,16 @@ export default function Blackjack() {
             setIsCardAnimating(false);
         }, 600);
     };
+
+    const resetGame = () => {
+        setGameState("waiting");
+        setGameStarted(false);
+        setPlayerCards([]);
+        setDealerCards([]);
+        setPlayerHandValue(0);
+        setDealerHandValue(0);
+        setGameId(null);
+    };
     const onBet = () => {
         if (bet < config.minBetAmount) {
             toast.error(`Minimum bet amount is ${config.minBetAmount}`);
@@ -49,9 +66,13 @@ export default function Blackjack() {
             toast.error(`Maximum bet amount is ${config.maxBetAmount}`);
             return;
         }
+        if (gameState === "in_progress") {
+            toast.error("Game is already in progress. Please wait for the current game to finish.");
+            return;
+        }
+        setGameState("in_progress");
 
-        setPlayerCards([]);
-        setDealerCards([]);
+        resetGame();
         Api.post(`/blackjack/bet`, {
             bet_amount: bet,
         }).then((res) => {
@@ -60,8 +81,10 @@ export default function Blackjack() {
                 playerCards: pcInit,
                 dealerCards: dcInit,
                 playerHandValue: phValue,
-                dealerHandValue: dhValue
+                dealerHandValue: dhValue,
+                gameStatus: s,
             } = res;
+            console.log(s);
 
             if (res.status !== 200) {
                 toast.error("An error occurred while placing the bet.");
@@ -87,6 +110,11 @@ export default function Blackjack() {
 
             setPlayerHandValue(phValue);
             setDealerHandValue(dhValue);
+            if (s === "blackjack") {
+                toast.success("You won with a blackjack!");
+                setGameState("win");
+                winSound();
+            }
         }).catch((err) => {
             toast.error("An error occurred while placing the bet.");
             console.error(err);
@@ -176,7 +204,7 @@ export default function Blackjack() {
                             marginBottom: "5px",
                             fontSize: "20px",
                             borderRadius: "16px",
-                            backgroundColor: (theme) => theme.palette.background.paper,
+                            backgroundColor: (theme) => gameState === "win" ? "green" : theme.palette.background.paper,
                             justifyContent: "center",
                             alignItems: "center",
                             width: "40px",
@@ -219,6 +247,7 @@ export default function Blackjack() {
                 playerCards={playerCards}
                 dealerCards={dealerCards}
                 onHit={onHit}
+                gameState={gameState}
             />
             <Box
                 sx={{

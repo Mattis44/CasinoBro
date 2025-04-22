@@ -13,6 +13,7 @@ export default function BetPanel({
     onBetAmountChange,
     playerCards,
     dealerCards,
+    gameState,
 }) {
     const gameStarted = playerCards.length > 0 && dealerCards.length > 0;
     return (
@@ -218,6 +219,7 @@ BetPanel.propTypes = {
         value: PropTypes.string.isRequired,
         hidden: PropTypes.bool,
     })).isRequired,
+    gameState: PropTypes.string.isRequired,
 };
 
 ButtonBet.propTypes = {
