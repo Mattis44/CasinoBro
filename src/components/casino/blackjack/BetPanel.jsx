@@ -2,6 +2,7 @@ import { Icon } from "@iconify/react";
 import { Box, Button, Grid, InputBase, lighten, Paper, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import { useState } from "react";
+import BLACKJACK_CONSTANTS from "src/constants/BJ_CONSTS";
 
 export default function BetPanel({
     bet,
@@ -15,7 +16,12 @@ export default function BetPanel({
     dealerCards,
     gameState,
 }) {
-    const gameStarted = playerCards.length > 0 && dealerCards.length > 0;
+    const isInProgress = gameState === BLACKJACK_CONSTANTS.GAME_STATES.IN_PROGRESS;
+    const canHit = isInProgress && playerCards.length > 0 && dealerCards.length > 0;
+    const canStand = isInProgress && playerCards.length > 0 && dealerCards.length > 0;
+    const canSplit = isInProgress && playerCards.length === 2 && playerCards[0].value === playerCards[1].value;
+    const canDouble = isInProgress && playerCards.length === 2 && dealerCards.length > 0;
+
     return (
         <Box sx={{
             width: 350,
@@ -42,27 +48,42 @@ export default function BetPanel({
                                 }
                             }}
                             icon={{ name: "fluent:slide-add-28-filled", color: "#B7B1F2" }}
-                            disabled={!gameStarted}
+                            disabled={!canHit}
                         />
                     </Grid>
                     <Grid item xs={6}>
                         <ButtonBet
                             value="Stand"
-                            onClick={() => { }}
+                            onClick={() => {
+                                if (onStand) {
+                                    onStand();
+                                }
+                            }}
+                            disabled={!canStand}
                             icon={{ name: "mingcute:hand-fill", color: "#FBF3B9" }}
                         />
                     </Grid>
                     <Grid item xs={6}>
                         <ButtonBet
                             value="Split"
-                            onClick={() => { }}
+                            onClick={() => {
+                                if (onSplit) {
+                                    onSplit();
+                                }
+                            }}
+                            disabled={!canSplit}
                             icon={{ name: "fluent:split-vertical-12-filled", color: "#F2B7B7" }}
                         />
                     </Grid>
                     <Grid item xs={6}>
                         <ButtonBet
                             value="Double"
-                            onClick={() => { }}
+                            onClick={() => {
+                                if (onDouble) {
+                                    onDouble();
+                                }
+                            }}
+                            disabled={!canDouble}
                             icon={{ name: "healthicons:coins", color: "#B7F2B7" }}
                         />
                     </Grid>

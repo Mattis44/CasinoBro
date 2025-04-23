@@ -8,10 +8,10 @@ import Card from "src/components/casino/Card";
 import useSound from "src/hooks/useSound";
 import Api from "src/utils/api";
 
-const config = {
-    minBetAmount: 1,
-    maxBetAmount: 10000,
-}
+import BLACKJACK_CONSTANTS from "src/constants/BJ_CONSTS";
+// MAKE CONSTANTS PLEASE
+
+
 
 export default function Blackjack() {
     const [bet, setBet] = useState(1);
@@ -25,7 +25,7 @@ export default function Blackjack() {
     const [gameStarted, setGameStarted] = useState(false);
     const [dealingCard, setDealingCard] = useState(null); // { to: "player" | "dealer", index: number, card: { suit: "hearts" | "diamonds" | "clubs" | "spades", value: string } }
     const [isCardAnimating, setIsCardAnimating] = useState(false);
-    const [gameState, setGameState] = useState("waiting"); // "in_progress" | "win" | "lose" | "waiting"
+    const [gameState, setGameState] = useState(BLACKJACK_CONSTANTS.GAME_STATES.WAITING);
 
     const cardSound = useSound(`/fx/card1.wav`, 0.8);
     const winSound = useSound(`/fx/win.mp3`, 0.8);
@@ -49,7 +49,6 @@ export default function Blackjack() {
     };
 
     const resetGame = () => {
-        setGameState("waiting");
         setGameStarted(false);
         setPlayerCards([]);
         setDealerCards([]);
@@ -58,19 +57,19 @@ export default function Blackjack() {
         setGameId(null);
     };
     const onBet = () => {
-        if (bet < config.minBetAmount) {
-            toast.error(`Minimum bet amount is ${config.minBetAmount}`);
+        if (bet < BLACKJACK_CONSTANTS.CONFIGS.MIN_BET_AMOUNT) {
+            toast.error(`Minimum bet amount is ${BLACKJACK_CONSTANTS.CONFIGS.MIN_BET_AMOUNT}`);
             return;
         }
-        if (bet > config.maxBetAmount) {
-            toast.error(`Maximum bet amount is ${config.maxBetAmount}`);
+        if (bet > BLACKJACK_CONSTANTS.CONFIGS.MAX_BET_AMOUNT) {
+            toast.error(`Maximum bet amount is ${BLACKJACK_CONSTANTS.CONFIGS.MAX_BET_AMOUNT}`);
             return;
         }
-        if (gameState === "in_progress") {
+        if (gameState === BLACKJACK_CONSTANTS.GAME_STATES.IN_PROGRESS) {
             toast.error("Game is already in progress. Please wait for the current game to finish.");
             return;
         }
-        setGameState("in_progress");
+        setGameState(BLACKJACK_CONSTANTS.GAME_STATES.IN_PROGRESS);
 
         resetGame();
         Api.post(`/blackjack/bet`, {
@@ -112,7 +111,7 @@ export default function Blackjack() {
             setDealerHandValue(dhValue);
             if (s === "blackjack") {
                 toast.success("You won with a blackjack!");
-                setGameState("win");
+                setGameState(BLACKJACK_CONSTANTS.GAME_STATES.WIN);
                 winSound();
             }
         }).catch((err) => {
@@ -122,6 +121,10 @@ export default function Blackjack() {
     };
 
     const onHit = () => {
+        if (gameState !== BLACKJACK_CONSTANTS.GAME_STATES.IN_PROGRESS) {
+            toast.error("Game is not in progress. Please place a bet first.");
+            return;
+        }
         Api.post(`/blackjack/${gameId}`, {
             action: "hit"
         }).then((res) => {
@@ -145,6 +148,55 @@ export default function Blackjack() {
         }
         return (
             <>
+                {gameState === BLACKJACK_CONSTANTS.GAME_STATES.IN_PROGRESS && dealerCards.length === 0 && dealerCards[0]?.equal === BLACKJACK_CONSTANTS.INSURANCE_EQUAL && (
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            backgroundColor: (theme) => theme.palette.background.paper,
+                            padding: 3,
+                            borderRadius: "8px",
+                            boxShadow: (theme) => `0px 4px 10px ${theme.palette.grey[800]}`,
+                            zIndex: 100,
+                        }}
+                    >
+                        <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                            Do you want to take insurance?
+                        </Typography>
+                        <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+                            <Box
+                                sx={{
+                                    padding: 1,
+                                    backgroundColor: "green",
+                                    color: "white",
+                                    borderRadius: "4px",
+                                    cursor: "pointer",
+                                    textAlign: "center",
+                                }}
+                            >
+                                Yes
+                            </Box>
+                            <Box
+                                onClick={() => {
+                                    toast.info("Insurance declined.");
+                                    // Add logic for declining insurance
+                                }}
+                                sx={{
+                                    padding: 1,
+                                    backgroundColor: "red",
+                                    color: "white",
+                                    borderRadius: "4px",
+                                    cursor: "pointer",
+                                    textAlign: "center",
+                                }}
+                            >
+                                No
+                            </Box>
+                        </Box>
+                    </Box>
+                )}
                 {dealingCard && isCardAnimating && (
                     <Card
                         returned={dealingCard?.card?.hidden}
