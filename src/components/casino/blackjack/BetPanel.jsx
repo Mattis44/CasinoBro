@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import { Box, Button, Grid, InputBase, lighten, Paper, Typography } from "@mui/material";
+import { alpha, Box, Button, Grid, InputBase, lighten, Paper, Tooltip, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import { useState } from "react";
 import BLACKJACK_CONSTANTS from "src/constants/BJ_CONSTS";
@@ -15,20 +15,20 @@ export default function BetPanel({
     playerCards,
     dealerCards,
     gameState,
+    infos = {},
 }) {
-    const isInProgress = gameState === BLACKJACK_CONSTANTS.GAME_STATES.IN_PROGRESS;
-    const canHit = isInProgress && playerCards.length > 0 && dealerCards.length > 0;
-    const canStand = isInProgress && playerCards.length > 0 && dealerCards.length > 0;
-    const canSplit = isInProgress && playerCards.length === 2 && playerCards[0].value === playerCards[1].value;
-    const canDouble = isInProgress && playerCards.length === 2 && dealerCards.length > 0;
 
     return (
         <Box sx={{
             width: 350,
             height: '100%',
             backgroundColor: (theme) => theme.palette.background.paper,
+            display: 'flex',
+            justifyContent: 'space-between',
+            flexDirection: 'column',
+            alignItems: 'center',
         }}>
-            <Box>
+            <Box sx={{ width: '100%' }}>
                 <BettingInput
                     onChange={(value) => {
                         if (onBetAmountChange) {
@@ -48,7 +48,7 @@ export default function BetPanel({
                                 }
                             }}
                             icon={{ name: "fluent:slide-add-28-filled", color: "#B7B1F2" }}
-                            disabled={!canHit}
+                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_HIT(gameState, playerCards, dealerCards)}
                         />
                     </Grid>
                     <Grid item xs={6}>
@@ -59,7 +59,7 @@ export default function BetPanel({
                                     onStand();
                                 }
                             }}
-                            disabled={!canStand}
+                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_STAND(gameState, playerCards, dealerCards)}
                             icon={{ name: "mingcute:hand-fill", color: "#FBF3B9" }}
                         />
                     </Grid>
@@ -71,7 +71,7 @@ export default function BetPanel({
                                     onSplit();
                                 }
                             }}
-                            disabled={!canSplit}
+                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_SPLIT(gameState, playerCards, dealerCards)}
                             icon={{ name: "fluent:split-vertical-12-filled", color: "#F2B7B7" }}
                         />
                     </Grid>
@@ -83,7 +83,7 @@ export default function BetPanel({
                                     onDouble();
                                 }
                             }}
-                            disabled={!canDouble}
+                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_DOUBLE(gameState, playerCards, dealerCards)}
                             icon={{ name: "healthicons:coins", color: "#B7F2B7" }}
                         />
                     </Grid>
@@ -111,6 +111,68 @@ export default function BetPanel({
                     </Button>
                 </Grid>
             </Box>
+            {infos && infos.gameId && infos.hash && (
+                <Box sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    gap: 2,
+                    padding: 2,
+                    border: "1px solid",
+                    borderColor: (theme) => theme.palette.divider,
+                    margin: 2,
+                    alignItems: "center",
+                    borderRadius: 2,
+                    position: "relative",
+                }}>
+                    <Tooltip title="GID is the Game ID, a unique identifier for the game session. HASH is a cryptographic hash that ensures the integrity and the proof of equity of the game data.">
+                        <Icon
+                            icon="mdi:information-outline"
+                            width="1rem"
+                            height="1rem"
+                            style={{
+                                position: "absolute",
+                                top: 8,
+                                right: 8,
+                                color: "gray",
+                            }}
+                        />
+                    </Tooltip>
+                    <Box sx={{
+                        display: "flex",
+                        gap: 2,
+                        alignItems: "center",
+                    }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <Typography variant="caption" sx={{ color: (theme) => theme.palette.text.secondary }}>
+                                GID
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: (theme) => theme.palette.text.secondary, wordBreak: "break-word", textAlign: "center" }}>
+                                {infos?.gameId}
+                            </Typography>
+                        </Box>
+                    </Box>
+                    <Box sx={{
+                        display: "flex",
+                        gap: 2,
+                        alignItems: "center",
+                    }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <div style={{
+                                display: "flex",
+                                gap: 2,
+                            }}>
+                                <Typography variant="caption" sx={{ color: (theme) => theme.palette.text.secondary }}>
+                                    HASH
+                                </Typography>
+                            </div>
+                            <Typography variant="caption" sx={{ color: (theme) => theme.palette.text.secondary, wordBreak: "break-word", textAlign: "center" }}>
+                                {infos?.hash}
+                            </Typography>
+                        </Box>
+                    </Box>
+                </Box>
+            )}
         </Box>
     )
 }
@@ -122,9 +184,9 @@ const ButtonBet = ({ icon, value, onClick, disabled }) => (
         sx={{
             width: '100%',
             height: '6vh',
-            backgroundColor: (theme) => lighten(theme.palette.background.paper, 0.1),
+            backgroundColor: alpha(icon.color, 0.2),
             "&:hover": {
-                backgroundColor: (theme) => lighten(theme.palette.background.paper, 0.2),
+                backgroundColor: alpha(icon.color, 0.5),
             },
             color: (theme) => theme.palette.text.primary,
             display: 'flex',
@@ -241,6 +303,10 @@ BetPanel.propTypes = {
         hidden: PropTypes.bool,
     })).isRequired,
     gameState: PropTypes.string.isRequired,
+    infos: PropTypes.shape({
+        gameId: PropTypes.string.isRequired,
+        hash: PropTypes.string.isRequired,
+    }),
 };
 
 ButtonBet.propTypes = {

@@ -9,13 +9,13 @@ import useSound from "src/hooks/useSound";
 import Api from "src/utils/api";
 
 import BLACKJACK_CONSTANTS from "src/constants/BJ_CONSTS";
-// MAKE CONSTANTS PLEASE
-
-
 
 export default function Blackjack() {
     const [bet, setBet] = useState(1);
-    const [gameId, setGameId] = useState(null);
+    const [gameInfos, setGameInfos] = useState({
+        gameId: null,
+        hash: null,
+    });
 
     const [playerCards, setPlayerCards] = useState([]);
     const [dealerCards, setDealerCards] = useState([]);
@@ -26,9 +26,11 @@ export default function Blackjack() {
     const [dealingCard, setDealingCard] = useState(null); // { to: "player" | "dealer", index: number, card: { suit: "hearts" | "diamonds" | "clubs" | "spades", value: string } }
     const [isCardAnimating, setIsCardAnimating] = useState(false);
     const [gameState, setGameState] = useState(BLACKJACK_CONSTANTS.GAME_STATES.WAITING);
+    const [insuranceDeclined, setInsuranceDeclined] = useState(false);
 
     const cardSound = useSound(`/fx/card1.wav`, 0.8);
     const winSound = useSound(`/fx/win.mp3`, 0.8);
+    const loseSound = useSound(`/fx/lose.mp3`, 0.8);
 
 
     const dealCard = (to, card, index) => {
@@ -54,7 +56,8 @@ export default function Blackjack() {
         setDealerCards([]);
         setPlayerHandValue(0);
         setDealerHandValue(0);
-        setGameId(null);
+        setGameInfos(null);
+        setInsuranceDeclined(false);
     };
     const onBet = () => {
         if (bet < BLACKJACK_CONSTANTS.CONFIGS.MIN_BET_AMOUNT) {
@@ -82,6 +85,7 @@ export default function Blackjack() {
                 playerHandValue: phValue,
                 dealerHandValue: dhValue,
                 gameStatus: s,
+                hash,
             } = res;
             console.log(s);
 
@@ -92,7 +96,10 @@ export default function Blackjack() {
             }
 
             setGameStarted(true);
-            setGameId(gId);
+            setGameInfos({
+                gameId: gId,
+                hash,
+            });
             // Store the game ID in local storage for later use
             window.localStorage.setItem("blackjack:gid", gId);
 
@@ -125,19 +132,88 @@ export default function Blackjack() {
             toast.error("Game is not in progress. Please place a bet first.");
             return;
         }
-        Api.post(`/blackjack/${gameId}`, {
+        Api.post(`/blackjack`, {
             action: "hit"
         }).then((res) => {
-            const { playerCards: pc, playerHandValue: phValue } = res.data;
+            const { playerCards: pc, playerHandValue: phValue, gameStatus: s } = res;
             if (res.status !== 200) {
                 toast.error("An error occurred while hitting.");
                 console.error(res);
                 return;
             }
+            if (!pc) {
+                toast.error("An error occurred while hitting.");
+                return;
+            }
             setPlayerHandValue(phValue);
-            setTimeout(() => dealCard("player", pc[pc.length - 1], pc.length - 1), 0);
+            dealCard("player", pc[pc.length - 1], pc.length - 1);
+            if (s === "bust") {
+                toast.error("You busted!");
+                setGameState(BLACKJACK_CONSTANTS.GAME_STATES.LOSE);
+                loseSound();
+            }
         }).catch((err) => {
             toast.error("An error occurred while hitting.");
+            console.error(err);
+        });
+    }
+
+    const onStand = () => {
+        if (gameState !== BLACKJACK_CONSTANTS.GAME_STATES.IN_PROGRESS) {
+            toast.error("Game is not in progress. Please place a bet first.");
+            return;
+        }
+        Api.post(`/blackjack`, {
+            action: "stand"
+        }).then((res) => {
+            const { dealerCards: dc, dealerHandValue: dhValue, gameStatus: s } = res;
+            if (res.status !== 200) {
+                toast.error("An error occurred while standing.");
+                console.error(res);
+                return;
+            }
+            if (!dc) {
+                toast.error("An error occurred while standing.");
+                return;
+            }
+            setDealerHandValue(dhValue);
+            setTimeout(() => {
+                const updatedDealerCards = [...dealerCards];
+                updatedDealerCards[1].hidden = false;
+                setDealerCards(updatedDealerCards);
+            }, 1000);
+
+            dc.slice(1).forEach((card, index) => {
+                setTimeout(() => dealCard("dealer", card, index + 1), index * 650 + 1650);
+            });
+            switch (s) {
+                case "win":
+                    toast.success("You won!");
+                    setGameState(BLACKJACK_CONSTANTS.GAME_STATES.WIN);
+                    winSound();
+                    break;
+                case "lose":
+                    toast.error("You lost!");
+                    setGameState(BLACKJACK_CONSTANTS.GAME_STATES.LOSE);
+                    loseSound();
+                    break;
+                case "push":
+                    toast("It's a push!")
+                    setGameState(BLACKJACK_CONSTANTS.GAME_STATES.WAITING);
+                    setGameStarted(false);
+                    break;
+                case "dealer_bust":
+                    toast.success("Dealer busted! You win!");
+                    setGameState(BLACKJACK_CONSTANTS.GAME_STATES.WIN);
+                    winSound();
+                    break;
+                default:
+                    toast.error("An error occurred while standing.");
+                    console.error(res);
+                    break;
+            }
+        }).catch((err) => {
+            toast.error("An error occurred while standing.");
             console.error(err);
         });
     }
@@ -148,7 +224,7 @@ export default function Blackjack() {
         }
         return (
             <>
-                {gameState === BLACKJACK_CONSTANTS.GAME_STATES.IN_PROGRESS && dealerCards.length === 0 && dealerCards[0]?.equal === BLACKJACK_CONSTANTS.INSURANCE_EQUAL && (
+                {BLACKJACK_CONSTANTS.FUNCS.IS_INSURANCE(gameState, dealerCards, dealerHandValue) && !insuranceDeclined && (
                     <Box
                         sx={{
                             position: "absolute",
@@ -167,6 +243,9 @@ export default function Blackjack() {
                         </Typography>
                         <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
                             <Box
+                                onClick={() => {
+                                    setInsuranceDeclined(true);
+                                }}
                                 sx={{
                                     padding: 1,
                                     backgroundColor: "green",
@@ -180,8 +259,7 @@ export default function Blackjack() {
                             </Box>
                             <Box
                                 onClick={() => {
-                                    toast.info("Insurance declined.");
-                                    // Add logic for declining insurance
+                                    setInsuranceDeclined(true);
                                 }}
                                 sx={{
                                     padding: 1,
@@ -211,7 +289,6 @@ export default function Blackjack() {
                         value={dealingCard.card.value}
                     />
                 )}
-
                 <Box sx={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)" }}>
                     <Box
                         sx={{
@@ -256,7 +333,15 @@ export default function Blackjack() {
                             marginBottom: "5px",
                             fontSize: "20px",
                             borderRadius: "16px",
-                            backgroundColor: (theme) => gameState === "win" ? "green" : theme.palette.background.paper,
+                            backgroundColor: (theme) => {
+                                if (gameState === "win") {
+                                    return "green";
+                                } if (gameState === "lose") {
+                                    return "red";
+                                }
+                                return theme.palette.background.paper;
+
+                            },
                             justifyContent: "center",
                             alignItems: "center",
                             width: "40px",
@@ -294,12 +379,14 @@ export default function Blackjack() {
         }}>
             <BetPanel
                 bet={bet}
-                onBetAmountChange={(value) => setBet(value)}
+                onHit={onHit}
                 onBet={onBet}
+                onStand={onStand}
+                onBetAmountChange={(value) => setBet(value)}
                 playerCards={playerCards}
                 dealerCards={dealerCards}
-                onHit={onHit}
                 gameState={gameState}
+                infos={gameInfos}
             />
             <Box
                 sx={{
