@@ -53,6 +53,7 @@ export function useNavData() {
         items: [
           { title: 'Games', path: paths.dashboard.root, icon: ICONS.banking },
           { title: 'Blackjack', path: paths.dashboard.general.blackjack, icon: ICONS.product },
+          { title: 'Coin Flip', path: paths.dashboard.general.coinflip, icon: ICONS.tour },
         ],
       },
 

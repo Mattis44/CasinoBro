@@ -1,7 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import BetPanel from "src/components/casino/blackjack/BetPanel";
 import BlackjackGameInit from "src/components/casino/blackjack/GameInit";
 import Ribbon from "src/components/casino/blackjack/Ribbon";
 import Card from "src/components/casino/Card";
@@ -10,6 +9,7 @@ import Api from "src/utils/api";
 
 import BLACKJACK_CONSTANTS from "src/constants/BJ_CONSTS";
 import { calculateHandValue } from "src/utils/blackjack";
+import BlackjackBetPanel from "src/components/casino/blackjack/BetPanel";
 
 export default function Blackjack() {
     const [bet, setBet] = useState(1);
@@ -758,7 +758,7 @@ export default function Blackjack() {
             display: 'flex',
             borderRadius: "8px",
         }}>
-            <BetPanel
+            <BlackjackBetPanel
                 bet={bet}
                 onHit={onHit}
                 onBet={onBet}

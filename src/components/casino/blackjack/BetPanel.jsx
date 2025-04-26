@@ -1,10 +1,11 @@
 import { Icon } from "@iconify/react";
-import { alpha, Box, Button, Grid, InputBase, lighten, Paper, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Divider, Grid, Tooltip, Typography } from "@mui/material";
 import PropTypes from "prop-types";
-import { useState } from "react";
 import BLACKJACK_CONSTANTS from "src/constants/BJ_CONSTS";
+import BettingInput from "../BettingInput";
+import ButtonBet from "../ButtonBet";
 
-export default function BetPanel({
+export default function BlackjackBetPanel({
     bet,
     onBet,
     onHit,
@@ -41,7 +42,7 @@ export default function BetPanel({
                     }}
                     bet={bet}
                 />
-
+                <Divider sx={{ width: '100%', marginTop: 2 }} />
                 <Grid container spacing={1} sx={{ padding: 2 }}>
                     <Grid item xs={6}>
                         <ButtonBet
@@ -181,114 +182,9 @@ export default function BetPanel({
     )
 }
 
-const ButtonBet = ({ icon, value, onClick, disabled }) => (
-    <Button
-        variant="contained"
-        onClick={onClick}
-        sx={{
-            width: '100%',
-            height: '6vh',
-            backgroundColor: alpha(icon.color, 0.2),
-            "&:hover": {
-                backgroundColor: alpha(icon.color, 0.5),
-            },
-            color: (theme) => theme.palette.text.primary,
-            display: 'flex',
-            gap: 1,
-        }}
-        disabled={disabled}
-    >
-        <Typography>
-            {value}
-        </Typography>
-        <Icon icon={icon.name} width="1.2rem" height="1.2rem" color={icon.color} />
-    </Button>
-)
 
-const BettingInput = ({
-    bet = 1,
-    onChange
-}) => {
-    const [value, setValue] = useState(bet);
 
-    return (
-        <Box sx={{ mt: 2 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 2 }}>
-                <Typography variant="caption" sx={{ marginLeft: 2 }}>
-                    Bet Amount
-                </Typography>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Typography variant="caption">
-                        125
-                    </Typography>
-                    <Icon icon="ph:coins" width="1.2rem" height="1.2rem" style={{ marginRight: 15 }} />
-                </div>
-            </div>
-            <Paper component="form" sx={{ display: 'flex', alignItems: 'center', backgroundColor: (theme) => theme.palette.background.default, padding: 1, marginX: 2, marginTop: 1 }}>
-                <InputBase
-                    sx={{ ml: 1, flex: 1 }}
-                    value={value}
-                    onChange={(e) => {
-                        const newValue = parseInt(e.target.value, 10);
-                        if (!Number.isNaN(newValue)) {
-                            setValue(newValue);
-                            if (onChange) {
-                                onChange(newValue);
-                            }
-                        } else {
-                            setValue(0);
-                        }
-                    }}
-                    endAdornment={<Icon icon="ph:coins" width="1.2rem" height="1.2rem" style={{ marginRight: 8 }} />}
-                />
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Button
-                        sx={{
-                            backgroundColor: (theme) => theme.palette.background.paper,
-                            "&:hover": {
-                                backgroundColor: (theme) => lighten(theme.palette.background.paper, 0.2),
-                            },
-                            color: (theme) => theme.palette.text.primary,
-                            width: '2rem',
-                            height: '2rem',
-                            fontSize: '0.7em',
-                        }}
-                        onClick={() => {
-                            setValue(value / 2);
-                            if (onChange) {
-                                onChange(value / 2);
-                            }
-                        }}
-                    >
-                        1/2
-                    </Button>
-                    <Button
-                        sx={{
-                            backgroundColor: (theme) => theme.palette.background.paper,
-                            "&:hover": {
-                                backgroundColor: (theme) => lighten(theme.palette.background.paper, 0.2),
-                            },
-                            color: (theme) => theme.palette.text.primary,
-                            width: '2rem',
-                            height: '2rem',
-                            fontSize: '0.7em',
-                        }}
-                        onClick={() => {
-                            setValue(value * 2);
-                            if (onChange) {
-                                onChange(value * 2);
-                            }
-                        }}
-                    >
-                        2X
-                    </Button>
-                </Box>
-            </Paper>
-        </Box>
-    );
-}
-
-BetPanel.propTypes = {
+BlackjackBetPanel.propTypes = {
     bet: PropTypes.number.isRequired,
     onBet: PropTypes.func,
     onHit: PropTypes.func,
@@ -328,9 +224,4 @@ ButtonBet.propTypes = {
     value: PropTypes.number.isRequired,
     onClick: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
-};
-
-BettingInput.propTypes = {
-    bet: PropTypes.number,
-    onChange: PropTypes.func,
 };

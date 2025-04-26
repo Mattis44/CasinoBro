@@ -7,6 +7,8 @@ import DashboardLayout from 'src/layouts/dashboard';
 import { LoadingScreen } from 'src/components/loading-screen';
 import Play from 'src/pages/play/view';
 import Blackjack from 'src/pages/play/blackjack';
+import CoinFlip from 'src/pages/play/coinflip';
+
 
 
 // ----------------------------------------------------------------------
@@ -31,6 +33,10 @@ export const dashboardRoutes = [
       {
         path: 'blackjack',
         element: <Blackjack />,
+      },
+      {
+        path: 'coinflip',
+        element: <CoinFlip />,
       }
       // {
       //   path: 'wallet',
