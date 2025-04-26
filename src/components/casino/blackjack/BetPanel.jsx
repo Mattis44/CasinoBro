@@ -12,9 +12,13 @@ export default function BetPanel({
     onSplit,
     onDouble,
     onBetAmountChange,
-    playerCards,
     dealerCards,
+    playerHands,
+    activeHandIndex,
     gameState,
+    playerHandValue,
+    splitMode,
+    isDouble,
     infos = {},
 }) {
 
@@ -48,7 +52,7 @@ export default function BetPanel({
                                 }
                             }}
                             icon={{ name: "fluent:slide-add-28-filled", color: "#B7B1F2" }}
-                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_HIT(gameState, playerCards, dealerCards)}
+                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_HIT(gameState, playerHands, activeHandIndex, dealerCards, playerHandValue, isDouble)}
                         />
                     </Grid>
                     <Grid item xs={6}>
@@ -59,7 +63,7 @@ export default function BetPanel({
                                     onStand();
                                 }
                             }}
-                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_STAND(gameState, playerCards, dealerCards)}
+                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_STAND(gameState, playerHands, activeHandIndex, dealerCards, isDouble)}
                             icon={{ name: "mingcute:hand-fill", color: "#FBF3B9" }}
                         />
                     </Grid>
@@ -71,7 +75,7 @@ export default function BetPanel({
                                     onSplit();
                                 }
                             }}
-                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_SPLIT(gameState, playerCards, dealerCards)}
+                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_SPLIT(gameState, playerHands, activeHandIndex, dealerCards, splitMode, isDouble)}
                             icon={{ name: "fluent:split-vertical-12-filled", color: "#F2B7B7" }}
                         />
                     </Grid>
@@ -83,7 +87,7 @@ export default function BetPanel({
                                     onDouble();
                                 }
                             }}
-                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_DOUBLE(gameState, playerCards, dealerCards)}
+                            disabled={!BLACKJACK_CONSTANTS.FUNCS.CAN_DOUBLE(gameState, playerHands, activeHandIndex, dealerCards, isDouble)}
                             icon={{ name: "healthicons:coins", color: "#B7F2B7" }}
                         />
                     </Grid>
@@ -292,21 +296,31 @@ BetPanel.propTypes = {
     onSplit: PropTypes.func,
     onDouble: PropTypes.func,
     onBetAmountChange: PropTypes.func,
-    playerCards: PropTypes.arrayOf(PropTypes.shape({
-        suit: PropTypes.string.isRequired,
-        value: PropTypes.string.isRequired,
-        hidden: PropTypes.bool,
-    })).isRequired,
     dealerCards: PropTypes.arrayOf(PropTypes.shape({
         suit: PropTypes.string.isRequired,
         value: PropTypes.string.isRequired,
         hidden: PropTypes.bool,
     })).isRequired,
-    gameState: PropTypes.string.isRequired,
+    playerHands: PropTypes.arrayOf(PropTypes.shape({
+        cards: PropTypes.arrayOf(PropTypes.shape({
+            suit: PropTypes.string.isRequired,
+            value: PropTypes.string.isRequired,
+            hidden: PropTypes.bool,
+        })).isRequired,
+        bet: PropTypes.number.isRequired,
+    })).isRequired,
+    activeHandIndex: PropTypes.number.isRequired,
+    gameState: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.arrayOf(PropTypes.string)
+    ]).isRequired,
     infos: PropTypes.shape({
         gameId: PropTypes.string.isRequired,
         hash: PropTypes.string.isRequired,
     }),
+    playerHandValue: PropTypes.number.isRequired,
+    splitMode: PropTypes.bool.isRequired,
+    isDouble: PropTypes.bool.isRequired,
 };
 
 ButtonBet.propTypes = {
