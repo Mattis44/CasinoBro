@@ -15,6 +15,7 @@ import { SettingsDrawer, SettingsProvider } from 'src/components/settings';
 import { AuthProvider } from 'src/auth/context/jwt';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Toaster } from 'react-hot-toast';
+import { SocketProvider } from './contexts/socket/ws';
 
 // ----------------------------------------------------------------------
 
@@ -24,24 +25,26 @@ export default function App() {
   return (
     <>
       <AuthProvider>
-        <SettingsProvider
-          defaultSettings={{
-            themeMode: 'dark', // 'light' | 'dark'
-            themeDirection: 'ltr', //  'rtl' | 'ltr'
-            themeContrast: 'default', // 'default' | 'bold'
-            themeLayout: 'vertical', // 'vertical' | 'horizontal' | 'mini'
-            themeColorPresets: 'default', // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
-            themeStretch: false,
-          }}
-        >
-          <ThemeProvider>
-            <MotionLazy>
-              <SettingsDrawer />
-              <ProgressBar />
-              <Router />
-            </MotionLazy>
-          </ThemeProvider>
-        </SettingsProvider>
+        <SocketProvider>
+          <SettingsProvider
+            defaultSettings={{
+              themeMode: 'dark', // 'light' | 'dark'
+              themeDirection: 'ltr', //  'rtl' | 'ltr'
+              themeContrast: 'default', // 'default' | 'bold'
+              themeLayout: 'vertical', // 'vertical' | 'horizontal' | 'mini'
+              themeColorPresets: 'default', // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
+              themeStretch: false,
+            }}
+          >
+            <ThemeProvider>
+              <MotionLazy>
+                <SettingsDrawer />
+                <ProgressBar />
+                <Router />
+              </MotionLazy>
+            </ThemeProvider>
+          </SettingsProvider>
+        </SocketProvider>
       </AuthProvider>
       <Toaster
         position="top-center"

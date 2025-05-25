@@ -25,6 +25,7 @@ export const paths = {
     general: {
       blackjack: `${ROOTS.DASHBOARD}/blackjack`,
       coinflip: `${ROOTS.DASHBOARD}/coinflip`,
+      chat: `${ROOTS.DASHBOARD}/chat`,
       // referral: `${ROOTS.DASHBOARD}/referral`,
       // settings: `${ROOTS.DASHBOARD}/settings`,
       // support: `${ROOTS.DASHBOARD}/support`,
