@@ -10,6 +10,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import { RouterLink } from 'src/routes/components';
 
 import Iconify from '../../iconify';
+import { Badge } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -23,6 +24,7 @@ const NavItem = forwardRef(
       disabled,
       caption,
       roles,
+      badge,
       //
       open,
       depth,
@@ -49,6 +51,7 @@ const NavItem = forwardRef(
         {icon && (
           <Box component="span" className="icon">
             {icon}
+            {badge && <Badge variant='dot' color='error' invisible={!badge} overlap='circular' anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} />}
           </Box>
         )}
 
@@ -131,6 +134,7 @@ NavItem.propTypes = {
   externalLink: PropTypes.bool,
   currentRole: PropTypes.string,
   roles: PropTypes.arrayOf(PropTypes.string),
+  badge: PropTypes.node,
 };
 
 export default NavItem;

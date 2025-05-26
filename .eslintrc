@@ -20,11 +20,12 @@
     "import/resolver": {
       "alias": {
         "map": [["src", "./src"]],
-        "extensions": [".js", ".jsx", ".json"]
+        "extensions": [".js", ".jsx", ".json", ".ts", ".tsx"]
       }
     }
   },
   "rules": {
+    "consistent-return": 0,
     "no-alert": 0,
     "camelcase": 0,
     "no-console": 0,

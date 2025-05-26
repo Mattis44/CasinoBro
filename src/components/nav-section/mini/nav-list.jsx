@@ -52,6 +52,7 @@ export default function NavList({ data, depth, slotProps }) {
         roles={data.roles}
         caption={data.caption}
         disabled={data.disabled}
+        badge={data.badge === true}
         //
         depth={depth}
         hasChild={!!data.children}

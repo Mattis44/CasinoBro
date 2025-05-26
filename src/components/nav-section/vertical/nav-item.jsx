@@ -23,6 +23,7 @@ const NavItem = forwardRef(
       disabled,
       caption,
       roles,
+      badge,
       //
       open,
       depth,
@@ -63,7 +64,7 @@ const NavItem = forwardRef(
         {title && (
           <Box component="span" sx={{ flex: '1 1 auto', minWidth: 0 }}>
             <Box component="span" className="label">
-              {title}
+              {title} ss
             </Box>
 
             {caption && (
@@ -151,6 +152,7 @@ NavItem.propTypes = {
   externalLink: PropTypes.bool,
   currentRole: PropTypes.string,
   roles: PropTypes.arrayOf(PropTypes.string),
+  badge: PropTypes.node,
 };
 
 export default NavItem;

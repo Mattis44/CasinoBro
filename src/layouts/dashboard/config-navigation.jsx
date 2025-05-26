@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 import { paths } from 'src/routes/paths';
 
 import SvgColor from 'src/components/svg-color';
+import { useSocket } from 'src/contexts/socket/ws';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
@@ -44,6 +46,10 @@ const ICONS = {
 // ----------------------------------------------------------------------
 
 export function useNavData() {
+  const { chat } = useSocket();
+  const { user } = useAuthContext();
+  console.log(chat, user);
+
   const data = useMemo(
     () => [
       // OVERVIEW
@@ -54,7 +60,17 @@ export function useNavData() {
           { title: 'Games', path: paths.dashboard.root, icon: ICONS.analytics },
           { title: 'Blackjack', path: paths.dashboard.general.blackjack, icon: ICONS.product },
           { title: 'Coin Flip', path: paths.dashboard.general.coinflip, icon: ICONS.order },
-          { title: 'Chat', path: paths.dashboard.general.chat, icon: ICONS.chat },
+          {
+            title: 'Chat',
+            path: paths.dashboard.general.chat,
+            icon: ICONS.chat,
+            badge: (() => {
+              if (!chat) return false;
+              console.log(chat.some((c) => c?.message.includes(`@${user?.str_username}`)));
+
+              return chat.some((c) => c?.message.includes(`@${user?.str_username}`) && c?.unread);
+            })()
+          },
         ],
       },
 
@@ -76,7 +92,7 @@ export function useNavData() {
       //   ],
       // },
     ],
-    []
+    [chat, user?.str_username]
   );
 
   return data;
